@@ -83,8 +83,7 @@ function App() {
   return (
     <div className="dashboard">
       <header className="header">
-        <h1>📈 Portfolio Tracker</h1>
-        <p>Track your investments in real-time</p>
+        <h1>Portfolio Tracker</h1>
       </header>
 
       <div className="portfolio-summary">
