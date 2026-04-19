@@ -7,11 +7,6 @@ const yahooFinance = new YahooFinance()
 
 app.use(middleware.requestLogger)
 
-app.get('/api/', async (request, response) => {
-  const quote = await yahooFinance.quote('MSFT');
-  response.json(quote.regularMarketPrice)
-})
-
 app.get('/api/stock/:ticker', async (request, response) => {
   const quote = await yahooFinance.quote(request.params.ticker)
   response.json(quote)

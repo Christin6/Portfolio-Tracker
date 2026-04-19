@@ -5,11 +5,25 @@
   --primary-color: #3498db;
   --secondary-text-color: #757575;
   --primary-text-color: #000;
+  --background-color: #f8f9fa;
+  --card-background: #ffffff;
+  --border-color: #e9ecef;
+  --profit-color: #28a745;
+  --loss-color: #dc3545;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  background-color: var(--background-color);
 }
 
 .dashboard {
-  font-family: "Montserrat", sans-serif;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
@@ -23,99 +37,182 @@
 
 .header h1 {
   margin-bottom: 10px;
+  font-weight: 700;
 }
 
-.portfolio-summary {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 30px;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.summary-item {
-  text-align: center;
-}
-
-.summary-item h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: var(--secondary-text-color);
-}
-
-.summary-item p {
-  margin: 5px 0 0 0;
-  font-size: 1.8rem;
-  color: var(--primary-text-color);
-}
-
-.stocks-grid {
+.main-content {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 2fr 1fr;
   gap: 20px;
 }
 
-.stock-card {
+.portfolio-table-section {
+  background: var(--card-background);
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
 }
 
-.stock-header {
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.portfolio-table th,
+.portfolio-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.portfolio-table th {
+  background-color: var(--background-color);
+  font-weight: 600;
+  color: var(--primary-text-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.portfolio-table td {
+  font-size: 0.95rem;
+}
+
+.portfolio-table .ticker {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.portfolio-table .profit {
+  color: var(--profit-color);
+  font-weight: 600;
+}
+
+.portfolio-table .loss {
+  color: var(--loss-color);
+  font-weight: 600;
+}
+
+.right-panel {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.stock-symbol {
-  font-size: 1.5rem;
+.allocation-card,
+.growth-card {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
   color: var(--primary-text-color);
 }
 
-.stock-name {
-  color: var(--secondary-text-color);
-  font-size: 0.9rem;
+.allocation-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.stock-price {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.stock-change {
+.allocation-item {
   display: flex;
   align-items: center;
-  font-size: 1.1rem;
+  gap: 10px;
 }
 
-.change-positive {
-  color: #27ae60;
+.allocation-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.change-negative {
-  color: #e74c3c;
+.allocation-fill {
+  height: 100%;
+  border-radius: 4px;
 }
 
-.add-stock {
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: background 0.2s;
+.allocation-label {
+  min-width: 60px;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.add-stock:hover {
-  background: #2980b9;
+.allocation-value {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.growth-chart {
+  height: 200px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-left: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.growth-bar {
+  width: 30px;
+  background: var(--primary-color);
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+}
+
+.growth-bar:hover {
+  opacity: 0.8;
+}
+
+.growth-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--secondary-text-color);
+}
+
+.portfolio-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background: var(--card-background);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.summary-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-card p {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-text-color);
 }
 
 .loading {
+  text-align: center;
   color: var(--secondary-text-color);
   font-style: italic;
+  padding: 40px;
 }

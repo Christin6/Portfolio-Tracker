@@ -1,71 +1,70 @@
 import { useState, useEffect } from 'react'
 import stockService from './services/stock'
+
 import './Dashboard.css'
+import PortfolioSummary from './components/PortfolioSummary'
+import MainContent from './components/MainContent'
 
 function App() {
-  const [stocks, setStocks] = useState([])
-  const [portfolioValue, setPortfolioValue] = useState(0)
-  const [totalChange, setTotalChange] = useState(0)
-  const [newTicker, setNewTicker] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [holdings, setHoldings] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const defaultStocks = ['BBRI.JK', 'MSFT', 'AAPL', 'GOOGL', 'TSLA']
+  // Mock holdings data - in a real app, this would come from a backend
+  const mockHoldings = [
+    { ticker: 'AAPL', quantity: 10, avgBuyPrice: 150.00 },
+    { ticker: 'MSFT', quantity: 5, avgBuyPrice: 280.00 },
+    { ticker: 'GOOGL', quantity: 3, avgBuyPrice: 2500.00 },
+    { ticker: 'TSLA', quantity: 8, avgBuyPrice: 200.00 },
+    { ticker: 'BBRI.JK', quantity: 100, avgBuyPrice: 4500.00 }
+  ]
 
   useEffect(() => {
-    loadStocks()
+    loadPortfolio()
   }, [])
 
-  const loadStocks = async () => {
+  const loadPortfolio = async () => {
     setLoading(true)
-    const stockData = []
-    let totalValue = 0
-    let totalChangeValue = 0
+    const portfolioData = []
 
-    for (const ticker of defaultStocks) {
+    for (const holding of mockHoldings) {
       try {
-        const quote = await stockService.getStockQuote(ticker)
-        const stock = {
-          symbol: quote.symbol,
-          name: quote.shortName || quote.longName || ticker,
-          price: quote.regularMarketPrice,
-          change: quote.regularMarketChange,
-          changePercent: quote.regularMarketChangePercent,
+        const quote = await stockService.getStockQuote(holding.ticker)
+        const currentPrice = quote.regularMarketPrice
+        const totalValue = currentPrice * holding.quantity
+        const totalCost = holding.avgBuyPrice * holding.quantity
+        const pl = totalValue - totalCost
+        const plPercent = ((currentPrice - holding.avgBuyPrice) / holding.avgBuyPrice) * 100
+
+        portfolioData.push({
+          name: quote.shortName || quote.longName || holding.ticker,
+          ticker: holding.ticker,
+          currentPrice,
+          avgBuyPrice: holding.avgBuyPrice,
+          quantity: holding.quantity,
+          totalValue,
+          pl,
+          plPercent,
           currency: quote.currency
-        }
-        stockData.push(stock)
-        totalValue += stock.price
-        totalChangeValue += stock.change
+        })
       } catch (error) {
-        console.error(`Failed to load ${ticker}:`, error)
+        console.error(`Failed to load ${holding.ticker}:`, error)
+        // Add with placeholder data
+        portfolioData.push({
+          name: holding.ticker,
+          ticker: holding.ticker,
+          currentPrice: 0,
+          avgBuyPrice: holding.avgBuyPrice,
+          quantity: holding.quantity,
+          totalValue: 0,
+          pl: 0,
+          plPercent: 0,
+          currency: 'USD'
+        })
       }
     }
 
-    setStocks(stockData)
-    setPortfolioValue(totalValue)
-    setTotalChange(totalChangeValue)
+    setHoldings(portfolioData)
     setLoading(false)
-  }
-
-  const addStock = async () => {
-    if (!newTicker.trim()) return
-
-    try {
-      const quote = await stockService.getStockQuote(newTicker.trim().toUpperCase())
-      const stock = {
-        symbol: quote.symbol,
-        name: quote.shortName || quote.longName || newTicker,
-        price: quote.regularMarketPrice,
-        change: quote.regularMarketChange,
-        changePercent: quote.regularMarketChangePercent,
-        currency: quote.currency
-      }
-      setStocks(prev => [...prev, stock])
-      setPortfolioValue(prev => prev + stock.price)
-      setTotalChange(prev => prev + stock.change)
-      setNewTicker('')
-    } catch (error) {
-      alert(`Failed to add stock: ${error.message}`)
-    }
   }
 
   const formatCurrency = (value, currency) => {
@@ -75,9 +74,38 @@ function App() {
     return `$${value?.toFixed(2)}`
   }
 
-  const formatChange = (change, percent) => {
-    const sign = change >= 0 ? '+' : ''
-    return `${sign}${change?.toFixed(2)} (${sign}${percent?.toFixed(2)}%)`
+  const formatPercent = (percent) => {
+    const sign = percent >= 0 ? '+' : ''
+    return `${sign}${percent?.toFixed(2)}%`
+  }
+
+  // Calculate portfolio totals
+  const totalValue = holdings.reduce((sum, h) => sum + h.totalValue, 0)
+  const totalCost = holdings.reduce((sum, h) => sum + (h.avgBuyPrice * h.quantity), 0)
+  const totalPL = totalValue - totalCost
+  const totalPLPercent = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0
+
+  // Asset allocation data
+  const allocationData = holdings.map(h => ({
+    name: h.ticker,
+    value: h.totalValue,
+    percentage: totalValue > 0 ? (h.totalValue / totalValue) * 100 : 0
+  })).sort((a, b) => b.value - a.value)
+
+  // Growth data (simplified - showing current vs buy price)
+  const growthData = holdings.map(h => ({
+    ticker: h.ticker,
+    growth: h.plPercent
+  }))
+
+  const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <div className="loading">Loading portfolio...</div>
+      </div>
+    )
   }
 
   return (
@@ -86,63 +114,23 @@ function App() {
         <h1>Portfolio Tracker</h1>
       </header>
 
-      <div className="portfolio-summary">
-        <div className="summary-item">
-          <h3>Total Value</h3>
-          <p>${portfolioValue.toFixed(2)}</p>
-        </div>
-        <div className="summary-item">
-          <h3>Today's Change</h3>
-          <p className={totalChange >= 0 ? 'change-positive' : 'change-negative'}>
-            {formatChange(totalChange, (totalChange / portfolioValue) * 100)}
-          </p>
-        </div>
-        <div className="summary-item">
-          <h3>Stocks Tracked</h3>
-          <p>{stocks.length}</p>
-        </div>
-      </div>
+      <PortfolioSummary
+        totalValue={totalValue}
+        totalCost={totalCost}
+        totalPL={totalPL}
+        totalPLPercent={totalPLPercent}
+        formatCurrency={formatCurrency}
+        formatPercent={formatPercent}
+      />
 
-      <div className="stocks-grid">
-        {stocks.map((stock) => (
-          <div key={stock.symbol} className="stock-card">
-            <div className="stock-header">
-              <div>
-                <div className="stock-symbol">{stock.symbol}</div>
-                <div className="stock-name">{stock.name}</div>
-              </div>
-            </div>
-            <div className="stock-price">
-              {formatCurrency(stock.price, stock.currency)}
-            </div>
-            <div className={`stock-change ${stock.change >= 0 ? 'change-positive' : 'change-negative'}`}>
-              {formatChange(stock.change, stock.changePercent)}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ textAlign: 'center', marginTop: '30px' }}>
-        <input
-          type="text"
-          value={newTicker}
-          onChange={(e) => setNewTicker(e.target.value)}
-          placeholder="Enter stock ticker (e.g., NVDA)"
-          style={{
-            padding: '10px',
-            fontSize: '1rem',
-            border: '1px solid #ddd',
-            borderRadius: '5px',
-            marginRight: '10px',
-            width: '200px'
-          }}
-        />
-        <button className="add-stock" onClick={addStock} disabled={loading}>
-          Add Stock
-        </button>
-      </div>
-
-      {loading && <p className="loading">Loading stocks...</p>}
+      <MainContent
+        holdings={holdings}
+        allocationData={allocationData}
+        growthData={growthData}
+        formatCurrency={formatCurrency}
+        formatPercent={formatPercent}
+        colors={colors}
+      />
     </div>
   )
 }
