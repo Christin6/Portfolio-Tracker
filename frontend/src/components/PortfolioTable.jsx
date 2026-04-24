@@ -1,4 +1,8 @@
-const PortfolioTable = ({ holdings, formatCurrency, formatPercent }) => {
+import { useHoldings } from '../stores/useHoldingStore'
+
+const PortfolioTable = ({ formatCurrency, formatPercent }) => {
+  const holdings = useHoldings()
+  
   return (
     <div className="portfolio-table-section">
       <h2 className="card-title">Portfolio Holdings</h2>

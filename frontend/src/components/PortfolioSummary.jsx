@@ -1,4 +1,8 @@
-const PortfolioSummary = ({ totalValue, totalCost, totalPL, totalPLPercent, formatCurrency, formatPercent }) => {
+import { usePortfolioTotals } from '../stores/useHoldingStore'
+
+const PortfolioSummary = ({ formatCurrency, formatPercent }) => {
+  const { totalValue, totalCost, totalPL, totalPLPercent } = usePortfolioTotals()
+
   return (
     <div className="portfolio-summary">
       <div className="summary-card">

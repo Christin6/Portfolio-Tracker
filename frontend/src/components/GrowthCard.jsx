@@ -1,9 +1,19 @@
-const GrowthCard = ({ growthData, formatPercent }) => {
+import { useHoldings } from '../stores/useHoldingStore'
+import { useMemo } from 'react'
+
+const GrowthCard = ({ formatPercent }) => {
+  const holdings = useHoldings()
+
+  const growthData = useMemo(() => holdings.map((h) => ({
+    ticker: h.ticker,
+    growth: h.plPercent,
+  })), [holdings])
+
   return (
     <div className="growth-card">
       <h3 className="card-title">Asset Performance</h3>
       <div className="growth-chart">
-        {growthData.map((item, index) => (
+        {growthData.map((item) => (
           <div
             key={item.ticker}
             className="growth-bar"
