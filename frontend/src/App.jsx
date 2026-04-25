@@ -91,7 +91,7 @@ function App() {
   return (
     <div className="dashboard">
       <div className="header">
-        <form>
+        <form className="search-bar">
           <input type="text" placeholder="Search stocks..." />
           <button type="submit">Search</button>
         </form>
