@@ -19,7 +19,7 @@ const GrowthCard = ({ formatPercent }) => {
             className="growth-bar"
             style={{
               height: `${Math.max(10, Math.abs(item.growth) * 2)}px`,
-              backgroundColor: item.growth >= 0 ? '#28a745' : '#dc3545'
+              backgroundColor: item.growth >= 0 ? '#3BC1A8' : '#e67b8f'
             }}
             title={`${item.ticker}: ${formatPercent(item.growth)}`}
           ></div>

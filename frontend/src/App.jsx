@@ -90,9 +90,12 @@ function App() {
 
   return (
     <div className="dashboard">
-      <header className="header">
-        <h1>Portfolio Tracker</h1>
-      </header>
+      <div className="header">
+        <form>
+          <input type="text" placeholder="Search stocks..." />
+          <button type="submit">Search</button>
+        </form>
+      </div>
 
       <PortfolioSummary
         formatCurrency={formatCurrency}
