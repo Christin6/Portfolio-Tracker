@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import stockService from './services/stock'
 
 import { useHoldingControls } from './stores/useHoldingStore'
+import { toggleCurrentCurrency } from './stores/useCurrencyStore';
+
+import { ToastContainer } from 'react-toastify';
 
 import './Dashboard.css'
 import PortfolioSummary from './components/PortfolioSummary'
@@ -80,6 +83,10 @@ function App() {
     return `${sign}${percent?.toFixed(2)}%`
   }
 
+  const addWrongCurrency = () => {
+    toggleCurrentCurrency();
+  }
+
   if (loading) {
     return (
       <div className="dashboard">
@@ -90,11 +97,14 @@ function App() {
 
   return (
     <div className="dashboard">
+      <ToastContainer />
+
       <div className="header">
         <form className="search-bar">
           <input type="text" placeholder="Search stocks..." />
           <button type="submit">Search</button>
         </form>
+        <button onClick={addWrongCurrency}>Change Currency</button>
       </div>
 
       <PortfolioSummary
