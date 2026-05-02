@@ -1,18 +1,20 @@
-const express = require('express')
-const app = express()
-const middleware = require('./utils/middleware')
+const express = require("express");
+const app = express();
+const middleware = require("./utils/middleware");
 
-const YahooFinance = require('yahoo-finance2').default
-const yahooFinance = new YahooFinance()
+const stockRouter = require("./routes/stock");
+const currencyRouter = require("./routes/currency");
+const newRouter = require("./routes/news");
 
-app.use(middleware.requestLogger)
+app.use(middleware.requestLogger);
 
-app.get('/api/stock/:ticker', async (request, response) => {
-  const quote = await yahooFinance.quote(request.params.ticker)
-  response.json(quote)
-})
+app.use("/api/stock", stockRouter);
 
-const PORT = 3001
+app.use("/api/currency", currencyRouter);
+
+app.use("/api/news", newRouter);
+
+const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`Server running in port ${PORT}`)
-})
+    console.log(`Server running in port ${PORT}`);
+});
