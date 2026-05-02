@@ -28,5 +28,5 @@ export const toggleCurrentCurrency = () => {
     const currentIndex = currencyOptions.indexOf(currentCurrency)
     const nextIndex = (currentIndex + 1) % currencyOptions.length
     setCurrentCurrency(currencyOptions[nextIndex])
-    toast(`Switched to ${currencyOptions[nextIndex]} from ${currentCurrency}`)
+    toast(`Switched from ${currentCurrency} to ${currencyOptions[nextIndex]}`)
 }

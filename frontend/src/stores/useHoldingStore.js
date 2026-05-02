@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
+import { useConvert } from "../hooks/useExchangeRates";
 
 const useHoldingStore = create((set) => ({
     holdings: [],
@@ -14,15 +15,17 @@ export const useHoldings = () => useHoldingStore((state) => state.holdings);
 export const useHoldingControls = () =>
     useHoldingStore((state) => state.actions);
 
-export const usePortfolioTotals = () =>
-    useHoldingStore(
+export const usePortfolioTotals = () => {
+    const convert = useConvert();
+
+    return useHoldingStore(
         useShallow((state) => {
             const totalValue = state.holdings.reduce(
-                (sum, h) => sum + h.totalValue,
+                (sum, h) => sum + convert(h.totalValue, h.currency),
                 0,
             );
             const totalCost = state.holdings.reduce(
-                (sum, h) => sum + h.avgBuyPrice * h.quantity,
+                (sum, h) => sum + convert(h.avgBuyPrice, h.currency) * h.quantity,
                 0,
             );
             const totalPL = totalValue - totalCost;
@@ -33,3 +36,4 @@ export const usePortfolioTotals = () =>
             return { totalValue, totalCost, totalPL, totalPLPercent };
         }),
     );
+}

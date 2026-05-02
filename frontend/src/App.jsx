@@ -2,18 +2,28 @@ import { useState, useEffect } from 'react'
 import stockService from './services/stock'
 
 import { useHoldingControls } from './stores/useHoldingStore'
-import { toggleCurrentCurrency } from './stores/useCurrencyStore';
+import { toggleCurrentCurrency } from './stores/useCurrencyStore'
 
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify'
 
 import './Dashboard.css'
 import PortfolioSummary from './components/PortfolioSummary'
 import MainContent from './components/MainContent'
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 60,
+    }
+  }
+})
+
 const mockHoldings = [
   { ticker: 'AAPL', quantity: 10, avgBuyPrice: 150.00 },
   { ticker: 'MSFT', quantity: 5, avgBuyPrice: 280.00 },
-  { ticker: 'GOOGL', quantity: 3, avgBuyPrice: 2500.00 },
+  { ticker: 'GOOGL', quantity: 3, avgBuyPrice: 250.00 },
   { ticker: 'TSLA', quantity: 8, avgBuyPrice: 200.00 },
   { ticker: 'BBRI.JK', quantity: 100, avgBuyPrice: 4500.00 }
 ]
@@ -74,8 +84,10 @@ function App() {
   const formatCurrency = (value, currency) => {
     if (currency === 'IDR') {
       return `Rp${value?.toLocaleString('id-ID')}`
+    } else if (currency === 'USD') {
+      return `$${value?.toFixed(2)}`
     }
-    return `$${value?.toFixed(2)}`
+    return 'Error on formatCurrency bro'
   }
 
   const formatPercent = (percent) => {
@@ -84,7 +96,7 @@ function App() {
   }
 
   const addWrongCurrency = () => {
-    toggleCurrentCurrency();
+    toggleCurrentCurrency()
   }
 
   if (loading) {
@@ -96,27 +108,29 @@ function App() {
   }
 
   return (
-    <div className="dashboard">
-      <ToastContainer />
+    <QueryClientProvider client={queryClient}>
+      <div className="dashboard">
+        <ToastContainer />
 
-      <div className="header">
-        <form className="search-bar">
-          <input type="text" placeholder="Search stocks..." />
-          <button type="submit">Search</button>
-        </form>
-        <button onClick={addWrongCurrency}>Change Currency</button>
+        <div className="header">
+          <form className="search-bar">
+            <input type="text" placeholder="Search stocks..." />
+            <button type="submit">Search</button>
+          </form>
+          <button onClick={addWrongCurrency}>Change Currency</button>
+        </div>
+
+        <PortfolioSummary
+          formatCurrency={formatCurrency}
+          formatPercent={formatPercent}
+        />
+
+        <MainContent
+          formatCurrency={formatCurrency}
+          formatPercent={formatPercent}
+        />
       </div>
-
-      <PortfolioSummary
-        formatCurrency={formatCurrency}
-        formatPercent={formatPercent}
-      />
-
-      <MainContent
-        formatCurrency={formatCurrency}
-        formatPercent={formatPercent}
-      />
-    </div>
+    </QueryClientProvider>
   )
 }
 

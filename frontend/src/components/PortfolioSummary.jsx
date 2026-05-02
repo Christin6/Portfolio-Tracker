@@ -1,22 +1,24 @@
 import { usePortfolioTotals } from '../stores/useHoldingStore'
+import { useCurrentCurrency } from '../stores/useCurrencyStore'
 
 const PortfolioSummary = ({ formatCurrency, formatPercent }) => {
   const { totalValue, totalCost, totalPL, totalPLPercent } = usePortfolioTotals()
+  const currentCurrency = useCurrentCurrency()
 
   return (
     <div className="portfolio-summary">
       <div className="summary-card">
         <h3>Total Value</h3>
-        <p>{formatCurrency(totalValue, 'USD')}</p>
+        <p>{formatCurrency(totalValue, currentCurrency)}</p>
       </div>
       <div className="summary-card">
         <h3>Total Cost</h3>
-        <p>{formatCurrency(totalCost, 'USD')}</p>
+        <p>{formatCurrency(totalCost, currentCurrency)}</p>
       </div>
       <div className="summary-card">
         <h3>Total P/L</h3>
         <p className={totalPL >= 0 ? 'profit' : 'loss'}>
-          {formatCurrency(totalPL, 'USD')}
+          {formatCurrency(totalPL, currentCurrency)}
         </p>
       </div>
       <div className="summary-card">
