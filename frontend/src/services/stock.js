@@ -18,4 +18,21 @@ const getStockQuote = async (ticker) => {
   return data
 }
 
-export default { getStockPrice, getStockQuote }
+const searchStocks = async (query, options = {}) => {
+  const { signal } = options
+  const response = await fetch(
+    `${baseUrl}/search?q=${encodeURIComponent(query)}`,
+    { signal },
+  )
+  if (!response.ok) {
+    const errBody = await response.json().catch(() => ({}))
+    const message =
+      errBody.message ||
+      `Search failed (${response.status})`
+    throw new Error(message)
+  }
+  const data = await response.json()
+  return data.quotes ?? []
+}
+
+export default { getStockPrice, getStockQuote, searchStocks }

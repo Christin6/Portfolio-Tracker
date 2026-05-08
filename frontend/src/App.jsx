@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify'
 import './Dashboard.css'
 import PortfolioSummary from './components/PortfolioSummary'
 import MainContent from './components/MainContent'
+import StockSearchBar from './components/StockSearchBar'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
@@ -95,7 +96,7 @@ function App() {
     return `${sign}${percent?.toFixed(2)}%`
   }
 
-  const addWrongCurrency = () => {
+  const toggleCurrency = () => {
     toggleCurrentCurrency()
   }
 
@@ -113,11 +114,8 @@ function App() {
         <ToastContainer />
 
         <div className="header">
-          <form className="search-bar">
-            <input type="text" placeholder="Search stocks..." />
-            <button type="submit">Search</button>
-          </form>
-          <button onClick={addWrongCurrency}>Change Currency</button>
+          <StockSearchBar />
+          <button onClick={toggleCurrency}>Change Currency</button>
         </div>
 
         <PortfolioSummary
