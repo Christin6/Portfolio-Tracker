@@ -2,16 +2,19 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'react-toastify'
 import stockService from '../services/stock'
 import { useHoldingControls, useHoldings } from '../stores/useHoldingStore'
+import AddOwnershipModal from './AddOwnershipModal'
 
 const DEBOUNCE_MS = 320
 
-function StockSearchBar() {
+const StockSearchBar = () => {
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [searchError, setSearchError] = useState(null)
   const [noResults, setNoResults] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
+  const [pendingTicker, setPendingTicker] = useState(null)
   const containerRef = useRef(null)
 
   const holdings = useHoldings()
@@ -24,6 +27,11 @@ function StockSearchBar() {
       ),
     [holdings],
   )
+
+  const dismissAddModal = useCallback(() => {
+    setOpenModal(false)
+    setPendingTicker(null)
+  }, [])
 
   useEffect(() => {
     const trimmed = query.trim()
@@ -77,42 +85,21 @@ function StockSearchBar() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [])
 
-  const addSymbol = async (symbol) => {
+  const addSymbol = (symbol) => {
     if (!symbol) return
     if (holdingHasTicker(symbol)) {
       toast.error(`${symbol} is already in your portfolio`)
       return
     }
-    try {
-      const quote = await stockService.getStockQuote(symbol)
-      const currentPrice = quote.regularMarketPrice
-      const quantity = 1
-      const avgBuyPrice = currentPrice
-      const totalValue = currentPrice * quantity
-      const totalCost = avgBuyPrice * quantity
-      const pl = totalValue - totalCost
-      const plPercent =
-        avgBuyPrice > 0
-          ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100
-          : 0
+    setPendingTicker(symbol)
+    setOpenModal(true)
+  }
 
-      addHolding({
-        name: quote.shortName || quote.longName || symbol,
-        ticker: symbol,
-        currentPrice,
-        avgBuyPrice,
-        quantity,
-        totalValue,
-        pl,
-        plPercent,
-        currency: quote.currency,
-      })
-      setQuery('')
-      setSuggestions([])
-      setOpen(false)
-    } catch {
-      toast.error(`Could not load a quote for ${symbol}`)
-    }
+  const handleConfirmAdd = (holding) => {
+    addHolding(holding)
+    setQuery('')
+    setSuggestions([])
+    setOpen(false)
   }
 
   const handleSubmit = (e) => {
@@ -132,6 +119,12 @@ function StockSearchBar() {
 
   return (
     <div className="stock-search-bar" ref={containerRef}>
+      <AddOwnershipModal
+        openModal={openModal}
+        onRequestClose={dismissAddModal}
+        ticker={pendingTicker}
+        onConfirm={handleConfirmAdd}
+      />
       <form className="search-bar" onSubmit={handleSubmit}>
         <input
           type="text"
