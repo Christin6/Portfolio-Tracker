@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import stockService from './services/stock'
 
 import { useHoldingControls } from './stores/useHoldingStore'
-import { toggleCurrentCurrency } from './stores/useCurrencyStore'
+import { toggleCurrentCurrency, useCurrentCurrency } from './stores/useCurrencyStore'
 
 import { ToastContainer } from 'react-toastify'
 
@@ -32,6 +32,8 @@ const mockHoldings = [
 function App() {
   const { setHoldings } = useHoldingControls()
   const [loading, setLoading] = useState(true)
+
+  const currentCurrency = useCurrentCurrency();
 
   useEffect(() => {
     const loadPortfolioData = async () => {
@@ -115,7 +117,9 @@ function App() {
 
         <div className="header">
           <StockSearchBar />
-          <button onClick={toggleCurrency}>Change Currency</button>
+          <button className="currency-toggle" onClick={toggleCurrency}>
+            {currentCurrency}
+          </button>
         </div>
 
         <PortfolioSummary

@@ -10,15 +10,15 @@ const NewsCard = ({ article }) => {
             rel="noopener noreferrer"
             className="news-card"
         >
-            <div className="news-card__body">
-                <div className="news-card__meta">
-                    <span className="news-card__source">{source}</span>
-                    <span className="news-card__dot">·</span>
-                    <span className="news-card__date">{formatDate(datetime)}</span>
+            <div className="news-card-body">
+                <div className="news-card-meta">
+                    <span className="news-card-source">{source}</span>
+                    <span className="news-card-dot">·</span>
+                    <span className="news-card-date">{formatDate(datetime)}</span>
                 </div>
-                <p className="news-card__headline">{headline}</p>
+                <p className="news-card-headline">{headline}</p>
                 {summary && (
-                    <p className="news-card__summary">
+                    <p className="news-card-summary">
                         {summary.length > 120 ? summary.slice(0, 120) + "…" : summary}
                     </p>
                 )}

@@ -1,180 +1,170 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import stockService from '../services/stock'
 
-function buildHoldingFromQuote(quote, ticker, quantity, avgBuyPrice) {
-    const currentPrice = quote.regularMarketPrice
-    const totalValue = currentPrice * quantity
-    const totalCost = avgBuyPrice * quantity
-    const pl = totalValue - totalCost
-    const plPercent =
-        avgBuyPrice > 0 ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100 : 0
+function holdingFromInputs(quote, ticker, qtyStr, avgStr) {
+  const quantity = Number.parseFloat(qtyStr)
+  const avgBuyPrice = Number.parseFloat(avgStr)
+  if (
+    !Number.isFinite(quantity) ||
+    quantity <= 0 ||
+    !Number.isFinite(avgBuyPrice) ||
+    avgBuyPrice < 0
+  ) {
+    return null
+  }
+  const currentPrice = quote.regularMarketPrice
+  const totalValue = currentPrice * quantity
+  const totalCost = avgBuyPrice * quantity
+  const pl = totalValue - totalCost
+  const plPercent =
+    avgBuyPrice > 0 ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100 : 0
 
-    return {
-        name: quote.shortName || quote.longName || ticker,
-        ticker,
-        currentPrice,
-        avgBuyPrice,
-        quantity,
-        totalValue,
-        pl,
-        plPercent,
-        currency: quote.currency,
-    }
+  return {
+    name: quote.shortName || quote.longName || ticker,
+    ticker,
+    currentPrice,
+    avgBuyPrice,
+    quantity,
+    totalValue,
+    pl,
+    plPercent,
+    currency: quote.currency,
+  }
 }
 
-function AddOwnershipModal({
-        openModal,
-        onRequestClose,
-        ticker,
-        onConfirm,
-    }) {
-    const dialogRef = useRef(null)
-    const [quote, setQuote] = useState(null)
-    const [quoteLoading, setQuoteLoading] = useState(false)
-    const [quoteError, setQuoteError] = useState(null)
-    const [quantity, setQuantity] = useState('1')
-    const [avgBuyPrice, setAvgBuyPrice] = useState('')
+function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
+  const dialogRef = useRef(null)
+  const open = ticker != null
 
-    const closeDialog = useCallback(() => {
-        const el = dialogRef.current
-        if (el?.open) el.close()
-    }, [])
+  /** null | 'loading' | { error } | { quote } */
+  const [load, setLoad] = useState(null)
+  const [qty, setQty] = useState('1')
+  const [avg, setAvg] = useState('')
 
-    const showDialog = useCallback(() => {
-        const el = dialogRef.current
-        if (el && !el.open) el.showModal()
-    }, [])
+  useEffect(() => {
+    const el = dialogRef.current
+    if (!open) {
+      if (el?.open) el.close()
+      return
+    }
+    if (el && !el.open) el.showModal()
+  }, [open])
 
-    useEffect(() => {
-        if (!openModal) {
-            closeDialog()
-            return
-        }
-        showDialog()
-    }, [openModal, closeDialog, showDialog])
-
-    useEffect(() => {
-        if (!openModal || !ticker) return
-
-        let cancelled = false
-        setQuote(null)
-        setQuoteError(null)
-        setQuantity('1')
-        setAvgBuyPrice('')
-        setQuoteLoading(true)
-
-            ; (async () => {
-                try {
-                    const q = await stockService.getStockQuote(ticker)
-                    if (cancelled) return
-                    setQuote(q)
-                    const p = q.regularMarketPrice
-                    setAvgBuyPrice(p != null ? String(p) : '')
-                } catch {
-                    if (!cancelled) setQuoteError('Could not load a quote for this symbol.')
-                } finally {
-                    if (!cancelled) setQuoteLoading(false)
-                }
-            })()
-
-        return () => {
-            cancelled = true
-        }
-    }, [openModal, ticker])
-
-    const handleNativeClose = () => {
-        onRequestClose()
+  useEffect(() => {
+    if (!ticker) {
+      setLoad(null)
+      setQty('1')
+      setAvg('')
+      return
     }
 
-    const handleCancel = () => {
-        closeDialog()
+    let cancelled = false
+    setLoad('loading')
+    setQty('1')
+    setAvg('')
+
+    ;(async () => {
+      try {
+        const q = await stockService.getStockQuote(ticker)
+        if (cancelled) return
+        const p = q.regularMarketPrice
+        setAvg(p != null ? String(p) : '')
+        setLoad({ quote: q })
+      } catch {
+        if (!cancelled) setLoad({ error: 'Could not load a quote for this symbol.' })
+      }
+    })()
+
+    return () => {
+      cancelled = true
     }
+  }, [ticker])
 
-    const handleConfirm = () => {
-        if (!quote || !ticker) return
-        const qty = Number.parseFloat(quantity)
-        const avg = Number.parseFloat(avgBuyPrice)
-        if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(avg) || avg < 0) {
-            return
-        }
-        onConfirm(buildHoldingFromQuote(quote, ticker, qty, avg))
-        closeDialog()
-    }
+  const closeDialog = () => {
+    const el = dialogRef.current
+    if (el?.open) el.close()
+  }
 
-    return (
-        <dialog
-            ref={dialogRef}
-            className="add-ownership-modal"
-            onClose={handleNativeClose}
-        >
-            <div className="add-ownership-modal__inner">
-                <h2 className="add-ownership-modal__title">
-                    {ticker ? `Add ${ticker}` : 'Add holding'}
-                </h2>
+  return (
+    <dialog
+      ref={dialogRef}
+      className="add-ownership-modal"
+      onClose={onDismiss}
+    >
+      <div className="add-ownership-modal-inner">
+        <h2 className="add-ownership-modal-title">
+          {ticker ? `Add ${ticker}` : 'Add holding'}
+        </h2>
 
-                {quoteLoading && (
-                    <p className="add-ownership-modal__status">Loading quote…</p>
-                )}
+        {load === 'loading' && (
+          <p className="add-ownership-modal-status">Loading quote…</p>
+        )}
 
-                {!quoteLoading && quoteError && (
-                    <p className="add-ownership-modal__status add-ownership-modal__status--error">
-                        {quoteError}
-                    </p>
-                )}
+        {load?.error && (
+          <p className="add-ownership-modal-status add-ownership-modal-status--error">
+            {load.error}
+          </p>
+        )}
 
-                {!quoteLoading && quote && !quoteError && (
-                    <>
-                        <p className="add-ownership-modal__meta">
-                            Current price:{' '}
-                            <strong>
-                                {quote.regularMarketPrice != null
-                                    ? `${quote.currency ?? ''} ${quote.regularMarketPrice}`.trim()
-                                    : '—'}
-                            </strong>
-                        </p>
-                        <label className="add-ownership-modal__field">
-                            <span>Quantity</span>
-                            <input
-                                type="number"
-                                min="0"
-                                step="any"
-                                value={quantity}
-                                onChange={(e) => setQuantity(e.target.value)}
-                            />
-                        </label>
-                        <label className="add-ownership-modal__field">
-                            <span>Avg buy price</span>
-                            <input
-                                type="number"
-                                min="0"
-                                step="any"
-                                value={avgBuyPrice}
-                                onChange={(e) => setAvgBuyPrice(e.target.value)}
-                            />
-                        </label>
-                    </>
-                )}
+        {load?.quote && (
+          <>
+            <p className="add-ownership-modal-meta">
+              Current price:{' '}
+              <strong>
+                {load.quote.regularMarketPrice != null
+                  ? `${load.quote.currency ?? ''} ${load.quote.regularMarketPrice}`.trim()
+                  : '—'}
+              </strong>
+            </p>
+            <label className="add-ownership-modal-field">
+              <span>Quantity</span>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={qty}
+                onChange={(e) => setQty(e.target.value)}
+              />
+            </label>
+            <label className="add-ownership-modal-field">
+              <span>Avg buy price</span>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={avg}
+                onChange={(e) => setAvg(e.target.value)}
+              />
+            </label>
+          </>
+        )}
 
-                <div className="add-ownership-modal__actions">
-                    <button
-                        type="button"
-                        className="add-ownership-modal__secondary"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        className="add-ownership-modal__primary"
-                        onClick={handleConfirm}
-                        disabled={!quote || quoteLoading || !!quoteError}
-                    >
-                        Add to portfolio
-                    </button>
-                </div>
-            </div>
-        </dialog>
-    )
+        <div className="add-ownership-modal-actions">
+          <button
+            type="button"
+            className="add-ownership-modal-secondary"
+            onClick={closeDialog}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="add-ownership-modal-primary"
+            onClick={() => {
+              if (!load?.quote || !ticker) return
+              const row = holdingFromInputs(load.quote, ticker, qty, avg)
+              if (!row) return
+              onConfirm(row)
+              closeDialog()
+            }}
+            disabled={!load?.quote || load === 'loading' || !!load?.error}
+          >
+            Add to portfolio
+          </button>
+        </div>
+      </div>
+    </dialog>
+  )
 }
 
 export default AddOwnershipModal

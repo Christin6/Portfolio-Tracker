@@ -5,10 +5,10 @@ const LoadingSkeleton = () => {
     return (
         <div className="news-skeleton">
             {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="news-skeleton__card">
-                    <div className="news-skeleton__line news-skeleton__line--short" />
-                    <div className="news-skeleton__line news-skeleton__line--long" />
-                    <div className="news-skeleton__line news-skeleton__line--medium" />
+                <div key={i} className="news-skeleton-card">
+                    <div className="news-skeleton-line news-skeleton-line--short" />
+                    <div className="news-skeleton-line news-skeleton-line--long" />
+                    <div className="news-skeleton-line news-skeleton-line--medium" />
                 </div>
             ))}
         </div>
@@ -24,19 +24,19 @@ const NewsPanel = ({ ticker }) => {
             <h3 className="card-title">News | {ticker && <span className="news-ticker">{ticker}</span>}</h3>
 
             {!ticker && (
-                <p className="news-panel__empty">Select a holding to see news.</p>
+                <p className="news-panel-empty">Select a holding to see news.</p>
             )}
 
             {ticker && isLoading && <LoadingSkeleton />}
 
             {ticker && isError && (
-                <p className="news-panel__error">
+                <p className="news-panel-error">
                     Failed to load news: {error?.message ?? "Unknown error"}
                 </p>
             )}
 
             {ticker && !isLoading && !isError && articles?.length === 0 && (
-                <p className="news-panel__empty">No recent news for {ticker}.</p>
+                <p className="news-panel-empty">No recent news for {ticker}.</p>
             )}
 
             {ticker && !isLoading && !isError && articles?.length > 0 && (

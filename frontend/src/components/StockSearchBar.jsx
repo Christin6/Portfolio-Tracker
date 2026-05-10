@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import stockService from '../services/stock'
 import { useHoldingControls, useHoldings } from '../stores/useHoldingStore'
@@ -8,64 +8,38 @@ const DEBOUNCE_MS = 320
 
 const StockSearchBar = () => {
   const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState([])
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [searchError, setSearchError] = useState(null)
-  const [noResults, setNoResults] = useState(false)
-  const [openModal, setOpenModal] = useState(false)
-  const [pendingTicker, setPendingTicker] = useState(null)
+  /** null | { loading } | { error } | { items: [] } */
+  const [search, setSearch] = useState(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  /** null = modal closed; string = ticker to add */
+  const [addTicker, setAddTicker] = useState(null)
   const containerRef = useRef(null)
 
   const holdings = useHoldings()
   const { addHolding } = useHoldingControls()
 
-  const holdingHasTicker = useCallback(
-    (symbol) =>
-      holdings.some(
-        (h) => h.ticker.toUpperCase() === String(symbol).toUpperCase(),
-      ),
-    [holdings],
-  )
-
-  const dismissAddModal = useCallback(() => {
-    setOpenModal(false)
-    setPendingTicker(null)
-  }, [])
-
   useEffect(() => {
     const trimmed = query.trim()
     if (!trimmed) {
-      setSuggestions([])
-      setSearchError(null)
-      setNoResults(false)
-      setLoading(false)
+      setSearch(null)
+      setDropdownOpen(false)
       return
     }
 
     const ac = new AbortController()
     const timer = setTimeout(async () => {
-      setLoading(true)
-      setSearchError(null)
-      setNoResults(false)
-      setOpen(true)
+      setSearch({ loading: true })
+      setDropdownOpen(true)
       try {
-        const quotes = await stockService.searchStocks(trimmed, {
+        const items = await stockService.searchStocks(trimmed, {
           signal: ac.signal,
         })
-        if (!ac.signal.aborted) {
-          setSuggestions(quotes)
-          setNoResults(quotes.length === 0)
-        }
+        if (!ac.signal.aborted) setSearch({ items })
       } catch (err) {
         if (err.name === 'AbortError') return
         if (!ac.signal.aborted) {
-          setSuggestions([])
-          setSearchError(err.message || 'Search failed')
-          setNoResults(false)
+          setSearch({ error: err.message || 'Search failed' })
         }
-      } finally {
-        if (!ac.signal.aborted) setLoading(false)
       }
     }, DEBOUNCE_MS)
 
@@ -77,96 +51,95 @@ const StockSearchBar = () => {
 
   useEffect(() => {
     const onPointerDown = (e) => {
-      if (!containerRef.current?.contains(e.target)) {
-        setOpen(false)
-      }
+      if (!containerRef.current?.contains(e.target)) setDropdownOpen(false)
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [])
 
-  const addSymbol = (symbol) => {
+  const pickSymbol = (symbol) => {
     if (!symbol) return
-    if (holdingHasTicker(symbol)) {
+    const exists = holdings.some(
+      (h) => h.ticker.toUpperCase() === symbol.toUpperCase(),
+    )
+    if (exists) {
       toast.error(`${symbol} is already in your portfolio`)
       return
     }
-    setPendingTicker(symbol)
-    setOpenModal(true)
-  }
-
-  const handleConfirmAdd = (holding) => {
-    addHolding(holding)
-    setQuery('')
-    setSuggestions([])
-    setOpen(false)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const trimmed = query.trim()
-    if (!trimmed) return
-    if (suggestions.length > 0) {
-      addSymbol(suggestions[0].symbol)
-    } else {
-      toast.info('No matches — keep typing or pick from the list')
-    }
+    setAddTicker(symbol)
   }
 
   const showPanel =
-    open &&
-    (loading || searchError || suggestions.length > 0 || noResults)
+    dropdownOpen && search && query.trim() !== ''
 
   return (
     <div className="stock-search-bar" ref={containerRef}>
       <AddOwnershipModal
-        openModal={openModal}
-        onRequestClose={dismissAddModal}
-        ticker={pendingTicker}
-        onConfirm={handleConfirmAdd}
+        ticker={addTicker}
+        onDismiss={() => setAddTicker(null)}
+        onConfirm={(holding) => {
+          addHolding(holding)
+          setQuery('')
+          setSearch(null)
+          setDropdownOpen(false)
+        }}
       />
-      <form className="search-bar" onSubmit={handleSubmit}>
+      <form
+        className="search-bar"
+        onSubmit={(e) => {
+          e.preventDefault()
+          const t = query.trim()
+          if (!t) return
+          if (search?.items?.length > 0) pickSymbol(search.items[0].symbol)
+          else toast.info('No matches — keep typing or pick from the list')
+        }}
+      >
         <input
           type="text"
           placeholder="Search stocks..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onFocus={() => {
+            if (
+              search &&
+              (search.loading || 'error' in search || 'items' in search)
+            ) {
+              setDropdownOpen(true)
+            }
+          }}
           autoComplete="off"
         />
         <button type="submit">Search</button>
       </form>
       {showPanel && (
-        <ul className="stock-search-bar__dropdown" role="listbox">
-          {loading && (
-            <li className="stock-search-bar__status">Searching…</li>
+        <ul className="stock-search-bar-dropdown" role="listbox">
+          {search.loading && (
+            <li className="stock-search-bar-status">Searching…</li>
           )}
-          {!loading && searchError && (
-            <li className="stock-search-bar__status stock-search-bar__status--error">
-              {searchError}
+          {search.error && (
+            <li className="stock-search-bar-status stock-search-bar-status--error">
+              {search.error}
             </li>
           )}
-          {!loading && !searchError && noResults && (
-            <li className="stock-search-bar__status">No matches</li>
+          {search.items?.length === 0 && (
+            <li className="stock-search-bar-status">No matches</li>
           )}
-          {!loading &&
-            !searchError &&
-            suggestions.map((row) => (
-              <li key={row.symbol}>
-                <button
-                  type="button"
-                  className="stock-search-bar__item"
-                  onClick={() => addSymbol(row.symbol)}
-                >
-                  <span className="stock-search-bar__symbol">{row.symbol}</span>
-                  <span className="stock-search-bar__name">{row.displayName}</span>
-                  <span className="stock-search-bar__meta">
-                    {row.exchDisp || row.exchange || ''}
-                    {row.quoteType ? ` · ${row.quoteType}` : ''}
-                  </span>
-                </button>
-              </li>
-            ))}
+          {search.items?.map((row) => (
+            <li key={row.symbol}>
+              <button
+                type="button"
+                className="stock-search-bar-item"
+                onClick={() => pickSymbol(row.symbol)}
+              >
+                <span className="stock-search-bar-symbol">{row.symbol}</span>
+                <span className="stock-search-bar-name">{row.displayName}</span>
+                <span className="stock-search-bar-meta">
+                  {row.exchDisp || row.exchange || ''}
+                  {row.quoteType ? ` · ${row.quoteType}` : ''}
+                </span>
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
