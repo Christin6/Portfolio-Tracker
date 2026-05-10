@@ -2,11 +2,10 @@ import PortfolioTable from "./PortfolioTable"
 import NewsPanel from "./NewsPanel"
 import AllocationCard from "./AllocationCard"
 
-const MainContent = ({ formatCurrency, formatPercent }) => {
+const MainContent = ({ formatPercent }) => {
   return (
     <div className="main-content">
       <PortfolioTable 
-        formatCurrency={formatCurrency} 
         formatPercent={formatPercent} 
       />
 

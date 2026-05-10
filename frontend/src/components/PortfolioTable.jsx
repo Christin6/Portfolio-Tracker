@@ -1,6 +1,7 @@
 import { useHoldings } from '../stores/useHoldingStore'
+import { formatCurrency } from '../helpers/formatCurrency'
 
-const PortfolioTable = ({ formatCurrency, formatPercent }) => {
+const PortfolioTable = ({ formatPercent }) => {
   const holdings = useHoldings()
   
   return (

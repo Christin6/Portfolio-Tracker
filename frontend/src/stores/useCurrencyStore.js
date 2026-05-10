@@ -3,10 +3,10 @@ import { toast } from "react-toastify";
 
 const useCurrencyStore = create((set) => ({
     currentCurrency: "USD",
-    currencyOptions: ["USD", "IDR"],
+    currencyOptions: ["USD"],
     actions: {
         addCurrencyOption: currency => 
-            set((state) => { currencyOptions: state.currencyOptions.concat(currency) }),
+            set((state) => ({ currencyOptions: state.currencyOptions.concat(currency) })),
         setCurrentCurrency: currency => set({ currentCurrency: currency }),
     }
 }));
@@ -18,8 +18,6 @@ export const addCurrencyOption = (currency) => {
 
     if (!currencyOptions.includes(currency)) {
         addCurrencyOption(currency);
-    } else {
-        toast.error(`${currency} is already in the options`);
     }
 }
 

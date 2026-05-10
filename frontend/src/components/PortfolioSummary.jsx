@@ -1,7 +1,8 @@
 import { usePortfolioTotals } from '../stores/useHoldingStore'
 import { useCurrentCurrency } from '../stores/useCurrencyStore'
+import { formatCurrency } from '../helpers/formatCurrency'
 
-const PortfolioSummary = ({ formatCurrency, formatPercent }) => {
+const PortfolioSummary = ({ formatPercent }) => {
   const { totalValue, totalCost, totalPL, totalPLPercent } = usePortfolioTotals()
   const currentCurrency = useCurrentCurrency()
 

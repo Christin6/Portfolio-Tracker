@@ -84,15 +84,6 @@ function App() {
     loadPortfolioData()
   }, [])
 
-  const formatCurrency = (value, currency) => {
-    if (currency === 'IDR') {
-      return `Rp${value?.toLocaleString('id-ID')}`
-    } else if (currency === 'USD') {
-      return `$${value?.toFixed(2)}`
-    }
-    return 'Error on formatCurrency bro'
-  }
-
   const formatPercent = (percent) => {
     const sign = percent >= 0 ? '+' : ''
     return `${sign}${percent?.toFixed(2)}%`
@@ -123,12 +114,10 @@ function App() {
         </div>
 
         <PortfolioSummary
-          formatCurrency={formatCurrency}
           formatPercent={formatPercent}
         />
 
         <MainContent
-          formatCurrency={formatCurrency}
           formatPercent={formatPercent}
         />
       </div>
