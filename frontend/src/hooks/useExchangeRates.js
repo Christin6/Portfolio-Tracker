@@ -21,7 +21,6 @@ export const useConvert = () => {
         if (!rates || fromCurrency === baseCurrency) return amount;
         // fawazahmed0 rates are base→X, so to convert FROM X TO base:
         const fromRate = rates[fromCurrency.toLowerCase()];
-        console.log({ amount, fromCurrency, fromRate, rates });
         return amount / fromRate;
     };
 };

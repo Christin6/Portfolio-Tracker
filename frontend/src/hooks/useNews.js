@@ -10,3 +10,10 @@ export const useTickerNews = (ticker) => {
   });
 }
 
+export const useGeneralNews = () => {
+  return useQuery({
+    queryKey: ["news", "general"],
+    queryFn: () => newsService.getGeneralNews(),
+    staleTime: 5 * 60 * 1000, // 5 min — news doesn't need real-time refresh
+  })
+}

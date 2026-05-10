@@ -6,4 +6,10 @@ const getTickerNews = async (ticker) => {
     return res.json();
 };
 
-export default { getTickerNews };
+const getGeneralNews = async () => {
+    const res = await fetch(`${baseUrl}/general`);
+    if (!res.ok) throw new Error(`News fetch failed: ${res.status}`);
+    return res.json();
+}
+
+export default { getTickerNews, getGeneralNews };

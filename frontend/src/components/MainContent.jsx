@@ -1,5 +1,5 @@
 import PortfolioTable from "./PortfolioTable"
-import NewsPanel from "./NewsPanel"
+import GeneralNewsPanel from "./NewsPanel"
 import AllocationCard from "./AllocationCard"
 
 const MainContent = ({ formatPercent }) => {
@@ -12,7 +12,7 @@ const MainContent = ({ formatPercent }) => {
       <div className="right-panel">
         <AllocationCard />
 
-        <NewsPanel ticker={"AAPL"} />
+        <GeneralNewsPanel />
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useTickerNews } from "../hooks/useTickerNews"
+import { useGeneralNews } from "../hooks/useNews"
 import NewsCard from "./NewsCard"
 
 const LoadingSkeleton = () => {
@@ -16,30 +16,26 @@ const LoadingSkeleton = () => {
     )
 }
 
-const NewsPanel = ({ ticker }) => {
-    const { data: articles, isLoading, isError, error } = useTickerNews(ticker)
+const GeneralNewsPanel = () => {
+    const { data: articles, isLoading, isError, error } = useGeneralNews()
 
     return (
         <div className="news-panel">
-            <h3 className="card-title">News | {ticker && <span className="news-ticker">{ticker}</span>}</h3>
+            <h3 className="card-title">News | General</h3>
 
-            {!ticker && (
-                <p className="news-panel-empty">Select a holding to see news.</p>
-            )}
+            {isLoading && <LoadingSkeleton />}
 
-            {ticker && isLoading && <LoadingSkeleton />}
-
-            {ticker && isError && (
+            {isError && (
                 <p className="news-panel-error">
                     Failed to load news: {error?.message ?? "Unknown error"}
                 </p>
             )}
 
-            {ticker && !isLoading && !isError && articles?.length === 0 && (
-                <p className="news-panel-empty">No recent news for {ticker}.</p>
+            {!isLoading && !isError && articles?.length === 0 && (
+                <p className="news-panel-empty">No recent news.</p>
             )}
 
-            {ticker && !isLoading && !isError && articles?.length > 0 && (
+            {!isLoading && !isError && articles?.length > 0 && (
                 <div className="news-list">
                     {articles.map((article, i) => (
                         <>
@@ -54,4 +50,4 @@ const NewsPanel = ({ ticker }) => {
     )
 }
 
-export default NewsPanel
+export default GeneralNewsPanel
