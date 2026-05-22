@@ -1,5 +1,6 @@
-import { useGeneralNews } from "../hooks/useNews"
+import { useGeneralNews, useIndonesiaGeneralNews } from "../hooks/useNews"
 import NewsCard from "./NewsCard"
+import { useState } from "react"
 
 const LoadingSkeleton = () => {
     return (
@@ -18,30 +19,49 @@ const LoadingSkeleton = () => {
 
 const GeneralNewsPanel = () => {
     const { data: articles, isLoading, isError, error } = useGeneralNews()
+    const { data: indonesiaArticles, isLoading: isIndonesiaLoading, isError: isIndonesiaError, error: indonesiaError } = useIndonesiaGeneralNews()
+    const [feed, setFeed] = useState("international") // "international" | "indonesia"
+
+    const activeArticles = feed === "international" ? articles : indonesiaArticles
+    const activeLoading = feed === "international" ? isLoading : isIndonesiaLoading
+    const activeError = feed === "international" ? isError : isIndonesiaError
+    const activeErrMsg = feed === "international" ? error : indonesiaError
 
     return (
         <div className="news-panel">
-            <h3 className="card-title">News | General</h3>
+            <div className="news-panel-header">
+                <div className="news-panel-tabs">
+                    <button
+                        className={`news-tab ${feed === "international" ? "news-tab--active" : ""}`}
+                        onClick={() => setFeed("international")}
+                    >
+                        International
+                    </button>
+                    <button
+                        className={`news-tab ${feed === "indonesia" ? "news-tab--active" : ""}`}
+                        onClick={() => setFeed("indonesia")}
+                    >
+                        Indonesia
+                    </button>
+                </div>
+            </div>
 
-            {isLoading && <LoadingSkeleton />}
+            {activeLoading && <LoadingSkeleton />}
 
-            {isError && (
+            {activeError && (
                 <p className="news-panel-error">
-                    Failed to load news: {error?.message ?? "Unknown error"}
+                    Failed to load news: {activeErrMsg?.message ?? "Unknown error"}
                 </p>
             )}
 
-            {!isLoading && !isError && articles?.length === 0 && (
+            {!activeLoading && !activeError && activeArticles?.length === 0 && (
                 <p className="news-panel-empty">No recent news.</p>
             )}
 
-            {!isLoading && !isError && articles?.length > 0 && (
+            {!activeLoading && !activeError && activeArticles?.length > 0 && (
                 <div className="news-list">
-                    {articles.map((article, i) => (
-                        <>
-                            <NewsCard key={article.id ?? `${article.datetime}-${i}`} article={article} />
-                            <br />
-                        </>
+                    {activeArticles.map((article, i) => (
+                        <NewsCard key={article.id ?? `${article.datetime}-${i}`} article={article} />
                     ))}
                 </div>
             )}

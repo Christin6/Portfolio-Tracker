@@ -12,4 +12,10 @@ const getGeneralNews = async () => {
     return res.json();
 }
 
-export default { getTickerNews, getGeneralNews };
+const getGeneralIndonesiaNews = async () => {
+    const res = await fetch(`${baseUrl}/indonesia/general`);
+    if (!res.ok) throw new Error(`News fetch failed: ${res.status}`);
+    return res.json();
+}
+
+export default { getTickerNews, getGeneralNews, getGeneralIndonesiaNews };

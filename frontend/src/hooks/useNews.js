@@ -17,3 +17,11 @@ export const useGeneralNews = () => {
     staleTime: 5 * 60 * 1000, // 5 min — news doesn't need real-time refresh
   })
 }
+
+export const useIndonesiaGeneralNews = () => {
+  return useQuery({
+    queryKey: ["news", "indonesia"],
+    queryFn: () => newsService.getGeneralIndonesiaNews(),
+    staleTime: 5 * 60 * 1000, // 5 min — news doesn't need real-time refresh
+  })
+}
