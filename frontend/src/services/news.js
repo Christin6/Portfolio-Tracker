@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3001/api/news";
+const baseUrl = "/api/news";
 
 const getTickerNews = async (ticker) => {
     const res = await fetch(`${baseUrl}/${ticker}`);

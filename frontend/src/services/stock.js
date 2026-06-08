@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3001/api/stock'
+const baseUrl = '/api/stock'
 
 const getStockPrice = async (ticker) => {
   const response = await fetch(`${baseUrl}/${ticker}`)

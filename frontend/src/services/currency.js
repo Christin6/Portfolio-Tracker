@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3001/api/currency';
+const baseUrl = '/api/currency';
 
 const getCurrencyRate = async (baseCurrency) => {
     const res = await fetch(`${baseUrl}/${baseCurrency}`);
