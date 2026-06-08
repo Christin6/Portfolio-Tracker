@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const middleware = require("./utils/middleware");
@@ -5,10 +7,14 @@ const middleware = require("./utils/middleware");
 const stockRouter = require("./routes/stock");
 const currencyRouter = require("./routes/currency");
 const newRouter = require("./routes/news");
+const userStockRouter = require("./routes/userStock");
 
 app.use(middleware.requestLogger);
+app.use(express.json())
 
 app.use(express.static('dist'))
+
+app.use('/api/userstock', userStockRouter);
 
 app.use("/api/stock", stockRouter);
 

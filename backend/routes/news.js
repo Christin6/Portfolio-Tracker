@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-require("dotenv").config();
 
 const companyNewsBaseUrl = "https://finnhub.io/api/v1/company-news";
 const generalNewsBaseUrl = `https://finnhub.io/api/v1/news?category=general&token=${process.env.FINNHUB_KEY}`;
