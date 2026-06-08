@@ -8,7 +8,7 @@ const newRouter = require("./routes/news");
 
 // Enable CORS
 const allowedOrigins = [
-    "http://localhost:3000", // Your local frontend during development
+    "http://localhost:5173", // Your local frontend during development
     "https://www.yourproductionfrontend.com", // Your live website
 ];
 
