@@ -14,8 +14,6 @@ const signupRouter = require("./routes/signup");
 app.use(middleware.requestLogger);
 app.use(express.json());
 
-app.use(express.static("dist"));
-
 app.use("/api/login", loginRouter);
 app.use("/api/signup", signupRouter);
 app.use("/api/userstock", userStockRouter);
@@ -25,6 +23,11 @@ app.use("/api/stock", stockRouter);
 app.use("/api/currency", currencyRouter);
 
 app.use("/api/news", newRouter);
+
+app.use(express.static("dist"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"))
+})
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
