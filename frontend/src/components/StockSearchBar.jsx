@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import stockService from '../services/stock'
-import { useHoldingControls, useHoldings } from '../stores/useHoldingStore'
 import AddOwnershipModal from './AddOwnershipModal'
+import { useUserStocks, useAddStock } from '../hooks/useUserStocks'
 
 const DEBOUNCE_MS = 320
 
 const StockSearchBar = () => {
   const [query, setQuery] = useState('')
-  /** null | { loading } | { error } | { items: [] } */
-  const [search, setSearch] = useState(null)
+  const [search, setSearch] = useState(null) // null | { loading } | { items } | { error }
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  /** null = modal closed; string = ticker to add */
   const [addTicker, setAddTicker] = useState(null)
   const containerRef = useRef(null)
 
-  const holdings = useHoldings()
-  const { addHolding } = useHoldingControls()
+  const { holdings = [] } = useUserStocks()
+  const { mutate: addStock } = useAddStock()
 
   useEffect(() => {
     const trimmed = query.trim()
@@ -31,15 +29,11 @@ const StockSearchBar = () => {
       setSearch({ loading: true })
       setDropdownOpen(true)
       try {
-        const items = await stockService.searchStocks(trimmed, {
-          signal: ac.signal,
-        })
+        const items = await stockService.searchStocks(trimmed, { signal: ac.signal })
         if (!ac.signal.aborted) setSearch({ items })
       } catch (err) {
         if (err.name === 'AbortError') return
-        if (!ac.signal.aborted) {
-          setSearch({ error: err.message || 'Search failed' })
-        }
+        if (!ac.signal.aborted) setSearch({ error: err.message || 'Search failed' })
       }
     }, DEBOUNCE_MS)
 
@@ -60,7 +54,7 @@ const StockSearchBar = () => {
   const pickSymbol = (symbol) => {
     if (!symbol) return
     const exists = holdings.some(
-      (h) => h.ticker.toUpperCase() === symbol.toUpperCase(),
+      (h) => h.ticker.toUpperCase() === symbol.toUpperCase()
     )
     if (exists) {
       toast.error(`${symbol} is already in your portfolio`)
@@ -69,20 +63,24 @@ const StockSearchBar = () => {
     setAddTicker(symbol)
   }
 
-  const showPanel =
-    dropdownOpen && search && query.trim() !== ''
+  const handleConfirm = (stockData) => {
+    addStock(stockData, {
+      onSuccess: () => toast.success(`${stockData.ticker} added to portfolio`),
+      onError: () => toast.error(`Failed to add ${stockData.ticker}`),
+    })
+    setQuery('')
+    setSearch(null)
+    setDropdownOpen(false)
+  }
+
+  const showPanel = dropdownOpen && search && query.trim() !== ''
 
   return (
     <div className="stock-search-bar" ref={containerRef}>
       <AddOwnershipModal
         ticker={addTicker}
         onDismiss={() => setAddTicker(null)}
-        onConfirm={(holding) => {
-          addHolding(holding)
-          setQuery('')
-          setSearch(null)
-          setDropdownOpen(false)
-        }}
+        onConfirm={handleConfirm}
       />
       <form
         className="search-bar"
@@ -100,10 +98,7 @@ const StockSearchBar = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
-            if (
-              search &&
-              (search.loading || 'error' in search || 'items' in search)
-            ) {
+            if (search && (search.loading || 'error' in search || 'items' in search)) {
               setDropdownOpen(true)
             }
           }}
@@ -111,18 +106,19 @@ const StockSearchBar = () => {
         />
         <button type="submit">Search</button>
       </form>
+
       {showPanel && (
         <ul className="stock-search-bar-dropdown" role="listbox">
           {search.loading && (
-            <li className="stock-search-bar-status">Searching…</li>
+            <li className="status-text status-text--compact">Searching…</li>
           )}
           {search.error && (
-            <li className="stock-search-bar-status stock-search-bar-status--error">
+            <li className="status-text status-text--compact status-text--error">
               {search.error}
             </li>
           )}
           {search.items?.length === 0 && (
-            <li className="stock-search-bar-status">No matches</li>
+            <li className="status-text status-text--compact">No matches</li>
           )}
           {search.items?.map((row) => (
             <li key={row.symbol}>

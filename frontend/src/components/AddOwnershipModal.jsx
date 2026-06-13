@@ -1,43 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import stockService from '../services/stock'
 
-function holdingFromInputs(quote, ticker, qtyStr, avgStr) {
-  const quantity = Number.parseFloat(qtyStr)
-  const avgBuyPrice = Number.parseFloat(avgStr)
-  if (
-    !Number.isFinite(quantity) ||
-    quantity <= 0 ||
-    !Number.isFinite(avgBuyPrice) ||
-    avgBuyPrice < 0
-  ) {
-    return null
-  }
-  const currentPrice = quote.regularMarketPrice
-  const totalValue = currentPrice * quantity
-  const totalCost = avgBuyPrice * quantity
-  const pl = totalValue - totalCost
-  const plPercent =
-    avgBuyPrice > 0 ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100 : 0
-
-  return {
-    name: quote.shortName || quote.longName || ticker,
-    ticker,
-    currentPrice,
-    avgBuyPrice,
-    quantity,
-    totalValue,
-    pl,
-    plPercent,
-    currency: quote.currency,
-  }
-}
-
 function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
   const dialogRef = useRef(null)
   const open = ticker != null
 
-  /** null | 'loading' | { error } | { quote } */
-  const [load, setLoad] = useState(null)
+  const [load, setLoad] = useState(null) // null | 'loading' | { error } | { quote }
   const [qty, setQty] = useState('1')
   const [avg, setAvg] = useState('')
 
@@ -75,9 +43,7 @@ function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
       }
     })()
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [ticker])
 
   const closeDialog = () => {
@@ -85,30 +51,52 @@ function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
     if (el?.open) el.close()
   }
 
+  const handleConfirm = () => {
+    if (!load?.quote || !ticker) return
+
+    const quantity = Number.parseFloat(qty)
+    const avgBuyPrice = Number.parseFloat(avg)
+
+    if (!Number.isFinite(quantity) || quantity <= 0) return
+    if (!Number.isFinite(avgBuyPrice) || avgBuyPrice < 0) return
+
+    onConfirm({
+      name: load.quote.shortName || load.quote.longName || ticker,
+      ticker,
+      avgBuyPrice,
+      quantity,
+      currency: load.quote.currency,
+    })
+
+    closeDialog()
+  }
+
+  const canSubmit = load?.quote && load !== 'loading' && !load?.error
+
   return (
     <dialog
       ref={dialogRef}
-      className="add-ownership-modal"
+      className="modal"
       onClose={onDismiss}
     >
-      <div className="add-ownership-modal-inner">
-        <h2 className="add-ownership-modal-title">
+      <div className="modal-inner">
+        <h2 className="modal-title">
           {ticker ? `Add ${ticker}` : 'Add holding'}
         </h2>
 
         {load === 'loading' && (
-          <p className="add-ownership-modal-status">Loading quote…</p>
+          <p className="status-text status-text--block">Loading quote…</p>
         )}
 
         {load?.error && (
-          <p className="add-ownership-modal-status add-ownership-modal-status--error">
+          <p className="status-text status-text--block status-text--error">
             {load.error}
           </p>
         )}
 
         {load?.quote && (
           <>
-            <p className="add-ownership-modal-meta">
+            <p className="modal-meta">
               Current price:{' '}
               <strong>
                 {load.quote.regularMarketPrice != null
@@ -116,7 +104,7 @@ function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
                   : '—'}
               </strong>
             </p>
-            <label className="add-ownership-modal-field">
+            <label className="modal-field">
               <span>Quantity</span>
               <input
                 type="number"
@@ -126,7 +114,7 @@ function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
                 onChange={(e) => setQty(e.target.value)}
               />
             </label>
-            <label className="add-ownership-modal-field">
+            <label className="modal-field">
               <span>Avg buy price</span>
               <input
                 type="number"
@@ -139,25 +127,18 @@ function AddOwnershipModal({ ticker, onDismiss, onConfirm }) {
           </>
         )}
 
-        <div className="add-ownership-modal-actions">
+        <div className="modal-actions">
           <button
             type="button"
-            className="add-ownership-modal-secondary"
+            className="modal-secondary"
             onClick={closeDialog}
           >
             Cancel
           </button>
           <button
             type="button"
-            className="add-ownership-modal-primary"
-            onClick={() => {
-              if (!load?.quote || !ticker) return
-              const row = holdingFromInputs(load.quote, ticker, qty, avg)
-              if (!row) return
-              onConfirm(row)
-              closeDialog()
-            }}
-            disabled={!load?.quote || load === 'loading' || !!load?.error}
+            onClick={handleConfirm}
+            disabled={!canSubmit}
           >
             Add to portfolio
           </button>

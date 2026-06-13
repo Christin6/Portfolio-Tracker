@@ -1,4 +1,4 @@
-import { useHoldings, usePortfolioTotals } from '../stores/useHoldingStore'
+import { useUserStocks, usePortfolioTotals } from '../hooks/useUserStocks'
 import { useCurrentCurrency } from '../stores/useCurrencyStore'
 import { useConvert } from '../hooks/useExchangeRates'
 import { useMemo } from 'react'
@@ -12,10 +12,10 @@ import {
 } from 'recharts'
 
 const SLICE_COLORS = [
-  '#00B7B5',
-  '#3BC1A8',
+  'var(--primary-color)',
+  'var(--profit-color)',
   '#5B9BD5',
-  '#e67b8f',
+  'var(--loss-color)',
   '#F4B942',
   '#9B59B6',
   '#1ABC9C',
@@ -24,7 +24,7 @@ const SLICE_COLORS = [
 ]
 
 const AllocationCard = () => {
-  const holdings = useHoldings()
+  const { holdings } = useUserStocks()
   const { totalValue } = usePortfolioTotals()
   const convert = useConvert()
   const displayCurrency = useCurrentCurrency()
@@ -59,12 +59,12 @@ const AllocationCard = () => {
   const showNoSlices = !showEmpty && chartData.length === 0
 
   return (
-    <div className="allocation-card">
+    <div className="card allocation-card">
       <h3 className="card-title">Asset Allocation</h3>
       {showEmpty ? (
-        <p className="allocation-empty">Add holdings to see allocation.</p>
+        <p className="empty-state">Add holdings to see allocation.</p>
       ) : showNoSlices ? (
-        <p className="allocation-empty">No positive positions to chart.</p>
+        <p className="empty-state">No positive positions to chart.</p>
       ) : (
         <div className="allocation-chart">
           <div className="allocation-pie">
@@ -88,12 +88,6 @@ const AllocationCard = () => {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--card-background)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 8,
-                    color: 'var(--primary-text-color)',
-                  }}
                   formatter={(value, name, item) => {
                     const pct = item?.payload?.percentage
                     const pctStr =
@@ -108,11 +102,6 @@ const AllocationCard = () => {
                   layout="vertical"
                   align="right"
                   verticalAlign="middle"
-                  wrapperStyle={{
-                    color: 'var(--primary-text-color)',
-                    fontSize: 12,
-                    paddingLeft: 8,
-                  }}
                   formatter={(value, entry) => {
                     const pct = entry?.payload?.percentage
                     const pctStr =
