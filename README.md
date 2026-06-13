@@ -14,3 +14,5 @@ Also includes international news and Indonesia news
 + Stock holding weight compared to total equity
 + International news and Indonesia news
 + Summary of holdings
++ Change the currency on the summary of holding
++ Automatically add currency option when user add a stock from that region to their holding
