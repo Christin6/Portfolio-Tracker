@@ -18,6 +18,10 @@ const stockSchema = new mongoose.Schema({
     avgBuyPrice: Number,
     quantity: Number,
     currency: String,
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 })
 
 stockSchema.set('toJSON', {

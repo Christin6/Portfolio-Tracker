@@ -1,18 +1,35 @@
+require("dotenv").config();
+
 const mongoose = require('mongoose')
 
-if (process.argv.length < 3) {
-    console.log('give password as argument')
-    process.exit(1)
-}
-
-const password = process.argv[2]
-
-const url = `mongodb://fullstack:${password}@ac-gt1vm0e-shard-00-00.hbsy0fh.mongodb.net:27017,ac-gt1vm0e-shard-00-01.hbsy0fh.mongodb.net:27017,ac-gt1vm0e-shard-00-02.hbsy0fh.mongodb.net:27017/PortfolioManagementApp?ssl=true&replicaSet=atlas-6gs4mi-shard-0&authSource=admin&appName=Cluster0`
+const url = process.env.MONGODB_URL
 
 mongoose.set('strictQuery', false)
 
 mongoose.connect(url, { family: 4 })
 
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    name: String,
+    passwordHash: {
+        type: String,
+        required: true
+    },
+    stocks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Stock",
+        },
+    ],
+});
+
+const User = mongoose.model('User', userSchema)
+
+/*
 const stockSchema = new mongoose.Schema({
     name: String,
     ticker: String,
@@ -23,7 +40,7 @@ const stockSchema = new mongoose.Schema({
 
 const Stock = mongoose.model('Stock', stockSchema)
 
-/* const stock = new Stock({
+const stock = new Stock({
     name: "Apple Inc.",
     ticker: "AAPL",
     avgBuyPrice: 150.00,
@@ -34,7 +51,7 @@ const Stock = mongoose.model('Stock', stockSchema)
 stock.save().then(result => {
     console.log('stock saved!')
     mongoose.connection.close()
-}) */
+})
 
 Stock.find({}).then(result => {
     result.forEach(stock => {
@@ -42,3 +59,4 @@ Stock.find({}).then(result => {
     })
     mongoose.connection.close()
 })
+    */
