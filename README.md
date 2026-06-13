@@ -1,2 +1,4 @@
 # Portfolio-Tracker
-A simple portfolio tracker than can track multi-nation stocks with one currency
+A simple stock portfolio tracker with unified summary in one currency.
+
+Also includes international news and Indonesia news
