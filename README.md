@@ -5,6 +5,8 @@ Also includes international news and Indonesia news
 
 <img width="2864" height="1623" alt="image" src="https://github.com/user-attachments/assets/92325984-5073-49e7-8108-56f8f06e81d6" />
 
+<img width="2864" height="1623" alt="image" src="https://github.com/user-attachments/assets/4acf37b2-4f13-4015-8bb8-04f90b25b36e" />
+
 
 ## Features
 + Search to add stock to holding
