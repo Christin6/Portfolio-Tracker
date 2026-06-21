@@ -88,7 +88,7 @@ const LoginForm = () => {
                 </form>
                 <p className="auth-switch">
                     Don't have an account?{' '}
-                    <Link to="/signup">Register</Link>
+                    <Link to="/signup" className='auth-switch-link'>Register</Link>
                 </p>
             </div>
         </div>

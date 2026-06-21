@@ -122,7 +122,7 @@ const SignupForm = () => {
                 </form>
                 <p className="auth-switch">
                     Already have an account?{' '}
-                    <Link to="/login">Login</Link>
+                    <Link to="/login" className="auth-switch-link">Login</Link>
                 </p>
             </div>
         </div>
