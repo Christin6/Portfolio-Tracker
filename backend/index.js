@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
-const middleware = require("./utils/middleware");
+const middleware = require("./middleware/middleware");
 
 const stockRouter = require("./routes/stock");
 const currencyRouter = require("./routes/currency");
@@ -26,10 +26,10 @@ app.use("/api/news", newRouter);
 
 app.use(express.static("dist"));
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"))
-})
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Server running in port ${PORT}`);
+  console.log(`Server running in port ${PORT}`);
 });

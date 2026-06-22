@@ -47,14 +47,19 @@ router.get("/search", async (req, res) => {
 });
 
 router.get("/:ticker", async (req, res) => {
+  const { ticker } = req.params;
+
+  if (!/^[A-Z0-9.\-]{1,20}$/i.test(ticker)) {
+    return res.status(400).json({ message: "Invalid ticker format" });
+  }
+
   try {
-    const { ticker } = req.params;
     const quote = await yahooFinance.quote(ticker);
     res.json(quote);
   } catch (err) {
-    console.error("Fetching stock failed:", err);
+    console.error(`Fetching ${ticker} failed:`, err);
     res.status(500).json({
-      message: err.message || "Fetching stock failed",
+      message: err.message || `Fetching ${ticker} failed`,
     });
   }
 });
