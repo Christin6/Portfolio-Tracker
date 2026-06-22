@@ -1,98 +1,109 @@
-import { useState } from 'react'
-import {
-  Link, useNavigate
-} from 'react-router-dom'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import loginService from '../services/login'
-import {
-  getUsernameError,
-  isLoginFormValid,
-} from '../helpers/authValidation'
-import { useUserStore } from '../stores/useUserStore'
-import userStockService from '../services/userStock'
+import loginService from "../services/login";
+import { getUsernameError, isLoginFormValid } from "../helpers/authValidation";
+import { useUserStore } from "../stores/useUserStore";
+import userStockService from "../services/userStock";
 
 const LoginForm = () => {
-    const [authError, setAuthError] = useState('')
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+    const [authError, setAuthError] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
-    const { setCurrentUser } = useUserStore((state) => state.actions)
+    const { setCurrentUser, setInitialized } = useUserStore(
+        (state) => state.actions,
+    );
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const usernameError = getUsernameError(username)
+    const usernameError = getUsernameError(username);
 
-    const loginValid = isLoginFormValid(username, password)
+    const loginValid = isLoginFormValid(username, password);
 
     const clearAuthForm = () => {
-        setUsername('setAuthError')
-        setPassword('')
-        setAuthError('')
-    }
+        setUsername("setAuthError");
+        setPassword("");
+        setAuthError("");
+    };
 
     const handleLogin = async (e) => {
-        e.preventDefault()
-        if (!loginValid) return
+        e.preventDefault();
+        if (!loginValid) return;
 
-        setAuthError('')
+        setAuthError("");
         try {
-            const user = await loginService.login({ username: username.trim(), password })
-            setCurrentUser(user)
-            clearAuthForm()
-            userStockService.setToken(user.token)
-            window.localStorage.setItem('loggedAppUser', JSON.stringify(user))
-            navigate('/dashboard')
+            const user = await loginService.login({
+                username: username.trim(),
+                password,
+            });
+            setCurrentUser(user);
+            setInitialized();
+            clearAuthForm();
+            userStockService.setToken(user.token);
+            window.localStorage.setItem("loggedAppUser", JSON.stringify(user));
+            navigate("/dashboard");
         } catch (err) {
-            setAuthError(err.message || 'Unable to log in. Please try again.')
+            setAuthError(err.message || "Unable to log in. Please try again.");
         }
-    }
+    };
 
     return (
         <div className="auth-page">
             <div>
-                <form className="card auth-form" onSubmit={handleLogin} noValidate>
+                <form
+                    className="card auth-form"
+                    onSubmit={handleLogin}
+                    noValidate
+                >
                     <h1>Login</h1>
-                    {authError &&
+                    {authError && (
                         <p className="status-text status-text--error status-text--field">
                             {authError}
-                        </p>}
+                        </p>
+                    )}
                     <label className="modal-field">
                         <span>Username</span>
                         <input
                             type="text"
                             value={username}
                             onChange={({ target }) => {
-                                setUsername(target.value)
-                                setAuthError('')
+                                setUsername(target.value);
+                                setAuthError("");
                             }}
                             required
                         />
                     </label>
-                    {usernameError &&
+                    {usernameError && (
                         <p className="status-text status-text--error status-text--field">
                             {usernameError}
-                        </p>}
+                        </p>
+                    )}
                     <label className="modal-field">
                         <span>Password</span>
                         <input
                             type="password"
                             value={password}
                             onChange={({ target }) => {
-                                setPassword(target.value)
-                                setAuthError('')
+                                setPassword(target.value);
+                                setAuthError("");
                             }}
                             required
                         />
                     </label>
-                    <button type="submit" disabled={!loginValid}>Login</button>
+                    <button type="submit" disabled={!loginValid}>
+                        Login
+                    </button>
                 </form>
                 <p className="auth-switch">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className='auth-switch-link'>Register</Link>
+                    Don't have an account?{" "}
+                    <Link to="/signup" className="auth-switch-link">
+                        Register
+                    </Link>
                 </p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default LoginForm
+export default LoginForm;

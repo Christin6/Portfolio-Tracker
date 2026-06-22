@@ -38,7 +38,6 @@ function App() {
   }, [setCurrentUser, setInitialized]);
 
   const isInitialized = useUserStore((state) => state.isInitialized);
-  const currentUser = useUserStore((state) => state.currentUser);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -49,9 +48,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
         <Route
-          path="*"
+          path="/"
           element={
-            !isInitialized ? null : currentUser ? (
+            isInitialized ? (
               <Navigate to="/dashboard" />
             ) : (
               <Navigate to="/login" />
