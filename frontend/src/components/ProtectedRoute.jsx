@@ -1,9 +1,12 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useUserStore } from '../stores/useUserStore'
+import { Navigate, Outlet } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const ProtectedRoute = () => {
-  const currentUser = useUserStore((state) => state.currentUser)
-  return currentUser ? <Outlet /> : <Navigate to="/login" />
-}
+  const currentUser = useUserStore((state) => state.currentUser);
+  const isInitialized = useUserStore((state) => state.isInitialized);
 
-export default ProtectedRoute
+  if (!isInitialized) return null; // or a spinner
+  return currentUser ? <Outlet /> : <Navigate to="/login" />;
+};
+
+export default ProtectedRoute;
