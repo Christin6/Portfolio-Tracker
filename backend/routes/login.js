@@ -33,8 +33,13 @@ loginRouter.post(
         });
 
         response
-            .status(200)
-            .send({ token, username: user.username, name: user.name });
+            .cookie("accessToken", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict", // CSRF protection
+                maxAge: 15 * 60 * 1000, // 15 min
+            })
+            .json({ username });
     },
 );
 
