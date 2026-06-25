@@ -708,11 +708,12 @@ button:disabled {
     }
 
     .card {
-        padding: 3rem 1rem;
+        padding: 1rem;
     }
 
     .auth-form {
         width: calc(100vw - 2rem);
+        padding: 2rem 1rem;
     }
 
     .card-title {
