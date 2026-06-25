@@ -6,12 +6,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm";
+import LandingPage from "./components/LandingPage";
 
 import { useUserStore } from "./stores/useUserStore";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -37,9 +38,6 @@ function App() {
             });
     }, [setCurrentUser, setInitialized]);
 
-    const isInitialized = useUserStore((state) => state.isInitialized);
-    const currentUser = useUserStore((state) => state.currentUser);
-
     return (
         <QueryClientProvider client={queryClient}>
             <Routes>
@@ -50,18 +48,7 @@ function App() {
                 <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                 </Route>
-                <Route
-                    path="/"
-                    element={
-                        !isInitialized ? (
-                            <div>Loading...</div> // wait for fetch
-                        ) : currentUser ? (
-                            <Navigate to="/dashboard" />
-                        ) : (
-                            <Navigate to="/login" />
-                        )
-                    }
-                />
+                <Route path="/" element={<LandingPage />} />
             </Routes>
         </QueryClientProvider>
     );
