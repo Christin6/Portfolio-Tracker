@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import {
+    useQuery,
+    useMutation,
+    useQueries,
+    useQueryClient,
+} from "@tanstack/react-query";
 import userStockService from "../services/userStock";
 import stockService from "../services/stock";
 import { useMemo } from "react";
@@ -9,7 +14,7 @@ export const useRawUserStocks = () => {
     return useQuery({
         queryKey: ["userStocks"],
         queryFn: () => userStockService.getAllStocks(),
-        staleTime: 5 * 60 * 1000, // 5 min — stock prices can be considered relatively fresh for a short period
+        staleTime: 1 * 60 * 1000, // 1 min — stock prices can be considered relatively fresh for a short period
     });
 };
 
@@ -21,7 +26,7 @@ export const useUserStocks = () => {
             queryKey: ["stock", h.ticker],
             queryFn: () => stockService.getStockPrice(h.ticker),
             staleTime: 5 * 60 * 1000,
-            enabled: rawHoldings.length > 0,
+            enabled: rawHoldings.length > 0 && !!h.ticker,
         })),
     });
 
@@ -49,7 +54,7 @@ export const useUserStocks = () => {
         });
     }, [rawHoldings, priceQueries]);
 
-    rawHoldings.forEach(h => addCurrencyOption(h.currency));
+    rawHoldings.forEach((h) => addCurrencyOption(h.currency));
 
     return { holdings, isLoading, isError };
 };
@@ -89,9 +94,9 @@ export const useAddStock = () => {
         onSuccess: () => {
             // invalidate the cache so the table refetches with the new stock
             queryClient.invalidateQueries({ queryKey: ["userStocks"] });
-        }
-    })
-}
+        },
+    });
+};
 
 export const useDeleteStock = () => {
     const queryClient = useQueryClient();
@@ -101,18 +106,19 @@ export const useDeleteStock = () => {
         onSuccess: () => {
             // invalidate the cache so the table refetches without the deleted stock
             queryClient.invalidateQueries({ queryKey: ["userStocks"] });
-        }
-    })
-}
+        },
+    });
+};
 
 export const useEditStock = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ stockId, avgBuyPrice, quantity }) => userStockService.editStock(stockId, avgBuyPrice, quantity),
+        mutationFn: ({ stockId, avgBuyPrice, quantity }) =>
+            userStockService.editStock(stockId, avgBuyPrice, quantity),
         onSuccess: () => {
             // invalidate the cache so the table refetches with the updated stock
             queryClient.invalidateQueries({ queryKey: ["userStocks"] });
-        }
-    })
-}
+        },
+    });
+};

@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import loginService from "../services/login";
 import { getUsernameError, isLoginFormValid } from "../helpers/authValidation";
 import { useUserStore } from "../stores/useUserStore";
-import userStockService from "../services/userStock";
 
 const LoginForm = () => {
     const [authError, setAuthError] = useState("");
@@ -40,7 +39,6 @@ const LoginForm = () => {
             setCurrentUser(user);
             setInitialized();
             clearAuthForm();
-            userStockService.setToken(user.token);
             window.localStorage.setItem("loggedAppUser", JSON.stringify(user));
             navigate("/dashboard");
         } catch (err) {

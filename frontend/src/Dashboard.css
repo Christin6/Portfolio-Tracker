@@ -708,7 +708,11 @@ button:disabled {
     }
 
     .card {
-        padding: 14px 16px;
+        padding: 3rem 1rem;
+    }
+
+    .auth-form {
+        width: calc(100vw - 2rem);
     }
 
     .card-title {

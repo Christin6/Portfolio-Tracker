@@ -1,16 +1,17 @@
-const baseUrl = '/api/login'
+const baseUrl = "/api/login";
 
-const login = async credentials => {
+const login = async (credentials) => {
     const response = await fetch(baseUrl, {
-        method: 'POST',
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials)
-    })
-    const data = await response.json()
+        body: JSON.stringify(credentials),
+        credentials: "include",
+    });
+    const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
+        throw new Error(data.error || "Login failed");
     }
-    return data
-}
+    return data;
+};
 
-export default { login }
+export default { login };

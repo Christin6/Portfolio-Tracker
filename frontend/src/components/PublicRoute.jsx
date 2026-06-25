@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 
-const ProtectedRoute = () => {
+const PublicRoute = () => {
     const currentUser = useUserStore((state) => state.currentUser);
     const isInitialized = useUserStore((state) => state.isInitialized);
 
-    if (!isInitialized) return <div>Loading...</div>; // or a spinner
-    return currentUser ? <Outlet /> : <Navigate to="/login" />;
+    if (!isInitialized) return <div>Loading...</div>;
+    return currentUser ? <Navigate to="/dashboard" /> : <Outlet />;
 };
 
-export default ProtectedRoute;
+export default PublicRoute;

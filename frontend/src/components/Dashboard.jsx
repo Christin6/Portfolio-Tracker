@@ -17,8 +17,11 @@ const Dashboard = () => {
     const currentCurrency = useCurrentCurrency();
     const queryClient = useQueryClient();
 
-    const handleLogout = () => {
-        window.localStorage.removeItem("loggedAppUser");
+    const handleLogout = async () => {
+        await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include",
+        });
         queryClient.clear();
         setCurrentUser(null);
     };
