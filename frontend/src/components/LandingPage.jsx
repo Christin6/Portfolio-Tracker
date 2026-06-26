@@ -39,20 +39,22 @@ const formatChange = (change) => {
 };
 
 const TickerRow = () => (
-  <div className="landing-ticker__track">
-    {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-      <span key={`${item.symbol}-${i}`} className="landing-ticker__item">
-        <span className="landing-ticker__symbol">{item.symbol}</span>
-        <span
-          className={
-            item.change >= 0 ? "landing-ticker__change profit" : "landing-ticker__change loss"
-          }
-        >
-          {formatChange(item.change)}
-        </span>
-      </span>
-    ))}
-  </div>
+    <div className="landing-ticker__track">
+        {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={`${item.symbol}-${i}`} className="landing-ticker__item">
+                <span className="landing-ticker__symbol">{item.symbol}</span>
+                <span
+                    className={
+                        item.change >= 0
+                            ? "landing-ticker__change profit"
+                            : "landing-ticker__change loss"
+                    }
+                >
+                    {formatChange(item.change)}
+                </span>
+            </span>
+        ))}
+    </div>
 );
 
 const LandingPage = () => {
@@ -61,7 +63,8 @@ const LandingPage = () => {
             <nav className="landing-nav">
                 <div className="landing-nav__inner">
                     <span className="landing-nav__brand">
-                        Portfolio <span className="landing-nav__accent">Tracker</span>
+                        Portfolio{" "}
+                        <span className="landing-nav__accent">Tracker</span>
                     </span>
                     <div className="landing-nav__actions">
                         <Link to="/login" className="landing-nav__link">
@@ -76,20 +79,26 @@ const LandingPage = () => {
 
             <section className="landing-hero">
                 <div className="landing-hero__content landing-animate landing-animate--1">
-                    <p className="landing-label">Portfolio Intelligence</p>
                     <h1 className="landing-hero__headline">
-                        Command your
+                        Take control of your
                         <br />
-                        capital stack.
+                        portfolio.
                     </h1>
                     <p className="landing-hero__sub">
-                        A stock portfolio tracker with unified summary in one currency.
+                        A stock portfolio tracker with unified summary in one
+                        currency.
                     </p>
                     <div className="landing-hero__actions">
-                        <Link to="/signup" className="landing-btn landing-btn--primary">
+                        <Link
+                            to="/signup"
+                            className="landing-btn landing-btn--primary"
+                        >
                             Get started
                         </Link>
-                        <Link to="/login" className="landing-btn landing-btn--ghost">
+                        <Link
+                            to="/login"
+                            className="landing-btn landing-btn--ghost"
+                        >
                             Sign in
                         </Link>
                     </div>
@@ -99,16 +108,28 @@ const LandingPage = () => {
                     <p className="landing-label">Live Snapshot</p>
                     <div className="landing-metrics">
                         <div className="landing-metrics__row">
-                            <span className="landing-metrics__label">Total Value</span>
-                            <span className="landing-metrics__value">$284,391.50</span>
+                            <span className="landing-metrics__label">
+                                Total Value
+                            </span>
+                            <span className="landing-metrics__value">
+                                $284,391.50
+                            </span>
                         </div>
                         <div className="landing-metrics__row">
-                            <span className="landing-metrics__label">Day Change</span>
-                            <span className="landing-metrics__value profit">+$3,847.22</span>
+                            <span className="landing-metrics__label">
+                                Day Change
+                            </span>
+                            <span className="landing-metrics__value profit">
+                                +$3,847.22
+                            </span>
                         </div>
                         <div className="landing-metrics__row">
-                            <span className="landing-metrics__label">Holdings</span>
-                            <span className="landing-metrics__value">14 positions</span>
+                            <span className="landing-metrics__label">
+                                Holdings
+                            </span>
+                            <span className="landing-metrics__value">
+                                14 positions
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -129,8 +150,12 @@ const LandingPage = () => {
                             className={`landing-feature landing-animate landing-animate--${i + 4}`}
                         >
                             <p className="landing-label">{feature.label}</p>
-                            <h2 className="landing-feature__title">{feature.title}</h2>
-                            <p className="landing-feature__desc">{feature.description}</p>
+                            <h2 className="landing-feature__title">
+                                {feature.title}
+                            </h2>
+                            <p className="landing-feature__desc">
+                                {feature.description}
+                            </p>
                         </article>
                     ))}
                 </div>
@@ -140,9 +165,14 @@ const LandingPage = () => {
                 <div className="landing-cta__inner">
                     <div>
                         <p className="landing-label">Ready</p>
-                        <h2 className="landing-cta__headline">Deploy your portfolio view.</h2>
+                        <h2 className="landing-cta__headline">
+                            Deploy your portfolio view.
+                        </h2>
                     </div>
-                    <Link to="/signup" className="landing-btn landing-btn--primary">
+                    <Link
+                        to="/signup"
+                        className="landing-btn landing-btn--primary"
+                    >
                         Get started
                     </Link>
                 </div>
