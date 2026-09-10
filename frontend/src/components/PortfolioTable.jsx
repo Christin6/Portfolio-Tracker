@@ -1,10 +1,11 @@
 import { formatCurrency } from '../helpers/formatCurrency'
-import { useUserStocks, useEditStock } from '../hooks/useUserStocks'
+import { useUserStocks, useEditStock, useDeleteStock } from '../hooks/useUserStocks'
 import { useEffect, useRef, useState } from 'react'
 
 const PortfolioTable = ({ formatPercent }) => {
   const { holdings, isLoading, isError } = useUserStocks()
   const { mutate: editStock } = useEditStock()
+  const { mutate: deleteStock } = useDeleteStock()
 
   const dialogRef = useRef(null)
   const [selectedHolding, setSelectedHolding] = useState(null)
@@ -33,6 +34,11 @@ const PortfolioTable = ({ formatPercent }) => {
   }, [selectedHolding])
 
   const handleEditHolding = () => {
+    if (quantity === 0) {
+      deleteStock(selectedHolding.id)
+      closeModal()
+      return
+    }
     editStock({
       stockId: selectedHolding.id,
       avgBuyPrice: Number(avgBuyPrice),
@@ -100,7 +106,16 @@ const PortfolioTable = ({ formatPercent }) => {
               <input
                 type="number"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={(e) => {
+                    if (e.target.value === 0) {
+                      setQuantity(0)
+                    } else if (e.target.value < 0) {
+                      setQuantity(0)
+                    } else {
+                      setQuantity(e.target.value)
+                    }
+                  }
+                }
               />
             </label>
             <label className="modal-field">
@@ -108,7 +123,13 @@ const PortfolioTable = ({ formatPercent }) => {
               <input
                 type="number"
                 value={avgBuyPrice}
-                onChange={(e) => setAvgBuyPrice(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value < 0) {
+                    setAvgBuyPrice(0)
+                  } else {
+                    setAvgBuyPrice(e.target.value)
+                  }
+                }}
               />
             </label>
             <div className="modal-actions">
